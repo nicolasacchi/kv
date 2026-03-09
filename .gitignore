@@ -1,0 +1,5 @@
+bin/
+/kv
+*.exe
+dist/
+.DS_Store
