@@ -211,6 +211,48 @@ var profilesSuppressCmd = &cobra.Command{
 	},
 }
 
+var profilesMergeCmd = &cobra.Command{
+	Use:   "merge",
+	Short: "Merge two profiles",
+	Long:  `Merge two profiles into one. WARNING: This operation cannot be undone.`,
+	RunE: func(cmd *cobra.Command, args []string) error {
+		ctx := context.Background()
+		c, err := getClient(cmd)
+		if err != nil {
+			return err
+		}
+
+		source, _ := cmd.Flags().GetString("source")
+		destination, _ := cmd.Flags().GetString("destination")
+		if source == "" || destination == "" {
+			return fmt.Errorf("both --source and --destination profile IDs are required")
+		}
+
+		fmt.Fprintf(os.Stderr, "WARNING: Merging profile %s into %s. This cannot be undone.\n", source, destination)
+
+		body := map[string]any{
+			"data": map[string]any{
+				"type": "profile-merge",
+				"relationships": map[string]any{
+					"profiles": map[string]any{
+						"data": []map[string]any{
+							{"type": "profile", "id": source},
+							{"type": "profile", "id": destination},
+						},
+					},
+				},
+			},
+		}
+
+		resp, err := c.Post(ctx, "profile-merge", body)
+		if err != nil {
+			return err
+		}
+		fmt.Fprintln(os.Stderr, "Profiles merged.")
+		return printData("profiles.merge", client.FlattenResponse(resp, rawFlag))
+	},
+}
+
 func init() {
 	profilesListCmd.Flags().String("email", "", "Filter by email")
 	profilesListCmd.Flags().String("phone", "", "Filter by phone number")
@@ -226,6 +268,9 @@ func init() {
 	profilesUpdateCmd.Flags().String("phone", "", "Phone number")
 	profilesUpdateCmd.Flags().String("properties", "", "Custom properties as JSON string")
 
-	profilesCmd.AddCommand(profilesListCmd, profilesGetCmd, profilesCreateCmd, profilesUpdateCmd, profilesSuppressCmd)
+	profilesMergeCmd.Flags().String("source", "", "Source profile ID to merge from (required)")
+	profilesMergeCmd.Flags().String("destination", "", "Destination profile ID to merge into (required)")
+
+	profilesCmd.AddCommand(profilesListCmd, profilesGetCmd, profilesCreateCmd, profilesUpdateCmd, profilesSuppressCmd, profilesMergeCmd)
 	rootCmd.AddCommand(profilesCmd)
 }

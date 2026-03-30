@@ -84,6 +84,9 @@ kv campaigns get <ID>
 
 kv campaigns create --name "Name" [--channel email]
 kv campaigns put <file.json>
+kv campaigns clone <ID> [--name "New Name"]
+kv campaigns send <ID> [--send-at ISO]
+kv campaigns delete <ID>
 
 kv campaigns report <ID> --conversion-metric-id <METRIC_ID> \
   [--timeframe last_30_days] \
@@ -100,6 +103,7 @@ kv flows list [--status draft|live|manual]
 
 kv flows get <ID>
 kv flows update <ID> --status draft|live|manual
+kv flows delete <ID>
 
 kv flows report <ID> --conversion-metric-id <METRIC_ID> \
   [--timeframe last_30_days] [--stats opens,clicks]
@@ -112,6 +116,9 @@ kv segments list
 # Output: [{id, type, name, created, updated, is_active}]
 
 kv segments get <ID>
+kv segments create --name "Name" [--definition '<json>']
+kv segments update <ID> [--name "Name"] [--definition '<json>']
+kv segments delete <ID>
 
 kv segments report <ID> --conversion-metric-id <METRIC_ID> \
   [--timeframe last_30_days] [--stats opens,clicks]
@@ -145,6 +152,7 @@ kv events get <ID>
 
 kv events create --metric-name "Name" --profile-email user@example.com \
   [--properties '{"key":"val"}']
+kv events bulk-create --payload events.json
 ```
 
 ### profiles
@@ -158,6 +166,7 @@ kv profiles create --email user@example.com [--first-name Jane] [--last-name Doe
   [--phone +1234567890] [--properties '{"key":"val"}']
 kv profiles update <ID> [--first-name Jane] [--properties '{"key":"val"}']
 kv profiles suppress <ID>
+kv profiles merge --source <ID> --destination <ID>
 ```
 
 ### lists
@@ -168,6 +177,8 @@ kv lists list
 
 kv lists get <ID>
 kv lists create --name "Name"
+kv lists update <ID> --name "New Name"
+kv lists delete <ID>
 kv lists members <LIST_ID>
 kv lists add-member <LIST_ID> --profile <PROFILE_ID>
 kv lists remove-member <LIST_ID> --profile <PROFILE_ID>
@@ -179,8 +190,13 @@ kv lists remove-member <LIST_ID> --profile <PROFILE_ID>
 kv catalog items list
 kv catalog items get <ID>
 kv catalog items create --payload item.json
+kv catalog items update --payload item.json
+kv catalog items delete <ID>
 kv catalog variants list <ITEM_ID>
 kv catalog variants get <ID>
+kv catalog variants create --payload variant.json
+kv catalog variants update --payload variant.json
+kv catalog variants delete <ID>
 ```
 
 ### tags
@@ -191,6 +207,8 @@ kv tags list
 
 kv tags get <ID>
 kv tags create --name "Name" [--group-id <ID>]
+kv tags update <ID> --name "New Name"
+kv tags delete <ID>
 kv tags assign <TAG_ID> --resource-type campaign --resource-id <ID>
 kv tags remove <TAG_ID> --resource-type campaign --resource-id <ID>
 ```
@@ -200,6 +218,10 @@ kv tags remove <TAG_ID> --resource-type campaign --resource-id <ID>
 ```bash
 kv templates list
 kv templates get <ID>
+kv templates create --name "Name" [--html '<html>' | --html @file.html] [--editor-type CODE]
+kv templates update <ID> [--name "Name"] [--html '<html>' | --html @file.html]
+kv templates clone <ID> [--name "Clone Name"]
+kv templates delete <ID>
 kv templates render <ID> [--context '{"name":"Jane"}']
 ```
 
@@ -211,6 +233,7 @@ Requires Advanced KDP plan.
 kv webhooks list
 kv webhooks get <ID>
 kv webhooks create --url https://example.com/hook --events event1,event2 [--secret KEY]
+kv webhooks update <ID> [--url URL] [--events events] [--secret KEY]
 kv webhooks delete <ID>
 ```
 
@@ -219,6 +242,30 @@ kv webhooks delete <ID>
 ```bash
 kv privacy request-deletion --email user@example.com [--phone +1234567890]
 kv privacy status <REQUEST_ID>
+```
+
+### coupons
+
+```bash
+kv coupons list
+kv coupons get <ID>
+kv coupons create --external-id SUMMER2024 [--description "Summer sale"]
+kv coupons update <ID> [--description "Updated"]
+kv coupons delete <ID>
+kv coupons codes list <COUPON_ID>
+kv coupons codes get <CODE_ID>
+kv coupons codes create <COUPON_ID> --unique-code SAVE10 [--expires-at ISO]
+kv coupons codes update <CODE_ID> [--status STATUS] [--expires-at ISO]
+kv coupons codes delete <CODE_ID>
+```
+
+### images
+
+```bash
+kv images list
+kv images get <ID>
+kv images upload --url https://example.com/image.jpg [--name "My Image"]
+kv images update <ID> --name "New Name"
 ```
 
 ## Common Patterns

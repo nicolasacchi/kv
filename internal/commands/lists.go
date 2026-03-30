@@ -95,6 +95,55 @@ var listsCreateCmd = &cobra.Command{
 	},
 }
 
+var listsUpdateCmd = &cobra.Command{
+	Use:   "update <id>",
+	Short: "Update a list",
+	Args:  cobra.ExactArgs(1),
+	RunE: func(cmd *cobra.Command, args []string) error {
+		ctx := context.Background()
+		c, err := getClient(cmd)
+		if err != nil {
+			return err
+		}
+
+		name, _ := cmd.Flags().GetString("name")
+		if name == "" {
+			return fmt.Errorf("--name is required")
+		}
+
+		body := jsonapiBodyWithID("list", args[0], map[string]any{
+			"name": name,
+		})
+
+		resp, err := c.Patch(ctx, "lists/"+args[0], body)
+		if err != nil {
+			return err
+		}
+		fmt.Fprintln(os.Stderr, "List updated.")
+		return printData("lists.update", client.FlattenResponse(resp, rawFlag))
+	},
+}
+
+var listsDeleteCmd = &cobra.Command{
+	Use:   "delete <id>",
+	Short: "Delete a list",
+	Args:  cobra.ExactArgs(1),
+	RunE: func(cmd *cobra.Command, args []string) error {
+		ctx := context.Background()
+		c, err := getClient(cmd)
+		if err != nil {
+			return err
+		}
+
+		err = c.Delete(ctx, "lists/"+args[0])
+		if err != nil {
+			return err
+		}
+		fmt.Fprintln(os.Stderr, "List deleted.")
+		return nil
+	},
+}
+
 var listsMembersCmd = &cobra.Command{
 	Use:   "members <list-id>",
 	Short: "List profiles in a list",
@@ -183,9 +232,10 @@ var listsRemoveMemberCmd = &cobra.Command{
 
 func init() {
 	listsCreateCmd.Flags().String("name", "", "List name (required)")
+	listsUpdateCmd.Flags().String("name", "", "New list name (required)")
 	listsAddMemberCmd.Flags().String("profile", "", "Profile ID to add (required)")
 	listsRemoveMemberCmd.Flags().String("profile", "", "Profile ID to remove (required)")
 
-	listsCmd.AddCommand(listsListCmd, listsGetCmd, listsCreateCmd, listsMembersCmd, listsAddMemberCmd, listsRemoveMemberCmd)
+	listsCmd.AddCommand(listsListCmd, listsGetCmd, listsCreateCmd, listsUpdateCmd, listsDeleteCmd, listsMembersCmd, listsAddMemberCmd, listsRemoveMemberCmd)
 	rootCmd.AddCommand(listsCmd)
 }

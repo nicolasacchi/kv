@@ -161,6 +161,107 @@ var campaignsPutCmd = &cobra.Command{
 	},
 }
 
+var campaignsCloneCmd = &cobra.Command{
+	Use:   "clone <id>",
+	Short: "Clone a campaign",
+	Args:  cobra.ExactArgs(1),
+	RunE: func(cmd *cobra.Command, args []string) error {
+		ctx := context.Background()
+		c, err := getClient(cmd)
+		if err != nil {
+			return err
+		}
+
+		attrs := map[string]any{
+			"campaign_id": args[0],
+		}
+
+		name, _ := cmd.Flags().GetString("name")
+		if name != "" {
+			attrs["name"] = name
+		}
+
+		body := jsonapiBody("campaign-clone", attrs)
+		resp, err := c.Post(ctx, "campaign-clone", body)
+		if err != nil {
+			return err
+		}
+		fmt.Fprintln(os.Stderr, "Campaign cloned.")
+		return printData("campaigns.clone", client.FlattenResponse(resp, rawFlag))
+	},
+}
+
+var campaignsSendCmd = &cobra.Command{
+	Use:   "send <id>",
+	Short: "Send a campaign",
+	Long:  `Send a campaign immediately or schedule it for later. WARNING: This sends real emails to recipients.`,
+	Args:  cobra.ExactArgs(1),
+	RunE: func(cmd *cobra.Command, args []string) error {
+		ctx := context.Background()
+		c, err := getClient(cmd)
+		if err != nil {
+			return err
+		}
+
+		sendAt, _ := cmd.Flags().GetString("send-at")
+		if sendAt != "" {
+			fmt.Fprintf(os.Stderr, "WARNING: Scheduling campaign %s for %s.\n", args[0], sendAt)
+		} else {
+			fmt.Fprintf(os.Stderr, "WARNING: Sending campaign %s immediately.\n", args[0])
+		}
+
+		body := map[string]any{
+			"data": map[string]any{
+				"type": "campaign-send-job",
+			},
+		}
+
+		if sendAt != "" {
+			bodyData := body["data"].(map[string]any)
+			bodyData["attributes"] = map[string]any{
+				"send_at": sendAt,
+			}
+		}
+
+		// Add campaign relationship
+		bodyData := body["data"].(map[string]any)
+		bodyData["relationships"] = map[string]any{
+			"campaign": jsonapiRelationship("campaign", args[0]),
+		}
+
+		resp, err := c.Post(ctx, "campaign-send-jobs", body)
+		if err != nil {
+			return err
+		}
+		if sendAt != "" {
+			fmt.Fprintln(os.Stderr, "Campaign scheduled.")
+		} else {
+			fmt.Fprintln(os.Stderr, "Campaign send job created.")
+		}
+		return printData("campaigns.send", client.FlattenResponse(resp, rawFlag))
+	},
+}
+
+var campaignsDeleteCmd = &cobra.Command{
+	Use:   "delete <id>",
+	Short: "Delete a campaign",
+	Args:  cobra.ExactArgs(1),
+	RunE: func(cmd *cobra.Command, args []string) error {
+		ctx := context.Background()
+		c, err := getClient(cmd)
+		if err != nil {
+			return err
+		}
+
+		err = c.Delete(ctx, "campaigns/"+args[0])
+		if err != nil {
+			return err
+		}
+		fmt.Fprintln(os.Stderr, "Campaign deleted.")
+		return nil
+	},
+}
+
 var (
 	campaignReportTimeframe    string
 	campaignReportStart        string
@@ -232,6 +333,9 @@ func init() {
 	campaignsReportCmd.Flags().StringVar(&campaignReportStats, "stats", "", "Comma-separated statistics (default: common set)")
 	campaignsReportCmd.Flags().StringVar(&campaignReportConversionID, "conversion-metric-id", "", "Conversion metric ID (required, e.g. Placed Order metric)")
 
-	campaignsCmd.AddCommand(campaignsListCmd, campaignsGetCmd, campaignsCreateCmd, campaignsPutCmd, campaignsReportCmd)
+	campaignsCloneCmd.Flags().String("name", "", "Name for the cloned campaign")
+	campaignsSendCmd.Flags().String("send-at", "", "Schedule send time (ISO 8601, omit for immediate)")
+
+	campaignsCmd.AddCommand(campaignsListCmd, campaignsGetCmd, campaignsCreateCmd, campaignsPutCmd, campaignsCloneCmd, campaignsSendCmd, campaignsDeleteCmd, campaignsReportCmd)
 	rootCmd.AddCommand(campaignsCmd)
 }

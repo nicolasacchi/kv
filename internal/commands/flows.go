@@ -104,6 +104,26 @@ var flowsUpdateCmd = &cobra.Command{
 	},
 }
 
+var flowsDeleteCmd = &cobra.Command{
+	Use:   "delete <id>",
+	Short: "Delete a flow",
+	Args:  cobra.ExactArgs(1),
+	RunE: func(cmd *cobra.Command, args []string) error {
+		ctx := context.Background()
+		c, err := getClient(cmd)
+		if err != nil {
+			return err
+		}
+
+		err = c.Delete(ctx, "flows/"+args[0])
+		if err != nil {
+			return err
+		}
+		fmt.Fprintln(os.Stderr, "Flow deleted.")
+		return nil
+	},
+}
+
 var (
 	flowReportTimeframe    string
 	flowReportStart        string
@@ -166,6 +186,6 @@ func init() {
 	flowsReportCmd.Flags().StringVar(&flowReportStats, "stats", "", "Comma-separated statistics")
 	flowsReportCmd.Flags().StringVar(&flowReportConversionID, "conversion-metric-id", "", "Conversion metric ID (required)")
 
-	flowsCmd.AddCommand(flowsListCmd, flowsGetCmd, flowsUpdateCmd, flowsReportCmd)
+	flowsCmd.AddCommand(flowsListCmd, flowsGetCmd, flowsUpdateCmd, flowsDeleteCmd, flowsReportCmd)
 	rootCmd.AddCommand(flowsCmd)
 }

@@ -78,6 +78,28 @@ var commandColumns = map[string][]ColumnDef{
 		{Header: "TITLE", Key: "title"},
 		{Header: "URL", Key: "url"},
 	},
+	"coupons.list": {
+		{Header: "ID", Key: "id"},
+		{Header: "EXTERNAL ID", Key: "external_id"},
+		{Header: "DESCRIPTION", Key: "description"},
+	},
+	"coupons.codes.list": {
+		{Header: "ID", Key: "id"},
+		{Header: "UNIQUE CODE", Key: "unique_code"},
+		{Header: "STATUS", Key: "status"},
+		{Header: "EXPIRES AT", Key: "expires_at"},
+	},
+	"images.list": {
+		{Header: "ID", Key: "id"},
+		{Header: "NAME", Key: "name"},
+		{Header: "FORMAT", Key: "format"},
+		{Header: "URL", Key: "image_url"},
+	},
+	"catalog.variants.list": {
+		{Header: "ID", Key: "id"},
+		{Header: "TITLE", Key: "title"},
+		{Header: "PRICE", Key: "price"},
+	},
 	"config.list": {
 		{Header: "NAME", Key: "name"},
 		{Header: "API KEY", Key: "api_key"},

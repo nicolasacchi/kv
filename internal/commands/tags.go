@@ -142,6 +142,55 @@ var tagsAssignCmd = &cobra.Command{
 	},
 }
 
+var tagsUpdateCmd = &cobra.Command{
+	Use:   "update <id>",
+	Short: "Update a tag",
+	Args:  cobra.ExactArgs(1),
+	RunE: func(cmd *cobra.Command, args []string) error {
+		ctx := context.Background()
+		c, err := getClient(cmd)
+		if err != nil {
+			return err
+		}
+
+		name, _ := cmd.Flags().GetString("name")
+		if name == "" {
+			return fmt.Errorf("--name is required")
+		}
+
+		body := jsonapiBodyWithID("tag", args[0], map[string]any{
+			"name": name,
+		})
+
+		resp, err := c.Patch(ctx, "tags/"+args[0], body)
+		if err != nil {
+			return err
+		}
+		fmt.Fprintln(os.Stderr, "Tag updated.")
+		return printData("tags.update", client.FlattenResponse(resp, rawFlag))
+	},
+}
+
+var tagsDeleteCmd = &cobra.Command{
+	Use:   "delete <id>",
+	Short: "Delete a tag",
+	Args:  cobra.ExactArgs(1),
+	RunE: func(cmd *cobra.Command, args []string) error {
+		ctx := context.Background()
+		c, err := getClient(cmd)
+		if err != nil {
+			return err
+		}
+
+		err = c.Delete(ctx, "tags/"+args[0])
+		if err != nil {
+			return err
+		}
+		fmt.Fprintln(os.Stderr, "Tag deleted.")
+		return nil
+	},
+}
+
 var tagsRemoveCmd = &cobra.Command{
 	Use:   "remove <tag-id>",
 	Short: "Remove a tag from a resource",
@@ -179,6 +228,8 @@ func init() {
 	tagsRemoveCmd.Flags().String("resource-type", "", "Resource type")
 	tagsRemoveCmd.Flags().String("resource-id", "", "Resource ID")
 
-	tagsCmd.AddCommand(tagsListCmd, tagsGetCmd, tagsCreateCmd, tagsAssignCmd, tagsRemoveCmd)
+	tagsUpdateCmd.Flags().String("name", "", "New tag name (required)")
+
+	tagsCmd.AddCommand(tagsListCmd, tagsGetCmd, tagsCreateCmd, tagsUpdateCmd, tagsDeleteCmd, tagsAssignCmd, tagsRemoveCmd)
 	rootCmd.AddCommand(tagsCmd)
 }

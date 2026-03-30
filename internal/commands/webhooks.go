@@ -106,6 +106,46 @@ var webhooksCreateCmd = &cobra.Command{
 	},
 }
 
+var webhooksUpdateCmd = &cobra.Command{
+	Use:   "update <id>",
+	Short: "Update a webhook",
+	Args:  cobra.ExactArgs(1),
+	RunE: func(cmd *cobra.Command, args []string) error {
+		ctx := context.Background()
+		c, err := getClient(cmd)
+		if err != nil {
+			return err
+		}
+
+		urlFlag, _ := cmd.Flags().GetString("url")
+		eventsFlag, _ := cmd.Flags().GetString("events")
+		secretFlag, _ := cmd.Flags().GetString("secret")
+
+		attrs := map[string]any{}
+		if urlFlag != "" {
+			attrs["endpoint_url"] = urlFlag
+		}
+		if eventsFlag != "" {
+			attrs["events"] = strings.Split(eventsFlag, ",")
+		}
+		if secretFlag != "" {
+			attrs["secret"] = secretFlag
+		}
+
+		if len(attrs) == 0 {
+			return fmt.Errorf("at least one attribute to update is required (--url, --events, --secret)")
+		}
+
+		body := jsonapiBodyWithID("webhook", args[0], attrs)
+		resp, err := c.Patch(ctx, "webhooks/"+args[0], body)
+		if err != nil {
+			return err
+		}
+		fmt.Fprintln(os.Stderr, "Webhook updated.")
+		return printData("webhooks.update", client.FlattenResponse(resp, rawFlag))
+	},
+}
+
 var webhooksDeleteCmd = &cobra.Command{
 	Use:   "delete <id>",
 	Short: "Delete a webhook",
@@ -131,6 +171,10 @@ func init() {
 	webhooksCreateCmd.Flags().String("events", "", "Comma-separated event types (required)")
 	webhooksCreateCmd.Flags().String("secret", "", "Webhook signing secret")
 
-	webhooksCmd.AddCommand(webhooksListCmd, webhooksGetCmd, webhooksCreateCmd, webhooksDeleteCmd)
+	webhooksUpdateCmd.Flags().String("url", "", "New webhook endpoint URL")
+	webhooksUpdateCmd.Flags().String("events", "", "New comma-separated event types")
+	webhooksUpdateCmd.Flags().String("secret", "", "New webhook signing secret")
+
+	webhooksCmd.AddCommand(webhooksListCmd, webhooksGetCmd, webhooksCreateCmd, webhooksUpdateCmd, webhooksDeleteCmd)
 	rootCmd.AddCommand(webhooksCmd)
 }

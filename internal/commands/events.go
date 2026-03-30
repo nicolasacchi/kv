@@ -137,6 +137,40 @@ var eventsCreateCmd = &cobra.Command{
 	},
 }
 
+var eventsBulkCreateCmd = &cobra.Command{
+	Use:   "bulk-create --payload <file>",
+	Short: "Bulk create events from a JSON file",
+	RunE: func(cmd *cobra.Command, args []string) error {
+		ctx := context.Background()
+		c, err := getClient(cmd)
+		if err != nil {
+			return err
+		}
+
+		payloadFile, _ := cmd.Flags().GetString("payload")
+		if payloadFile == "" {
+			return fmt.Errorf("--payload is required (path to JSON file)")
+		}
+
+		fileData, err := os.ReadFile(payloadFile)
+		if err != nil {
+			return fmt.Errorf("read file: %w", err)
+		}
+
+		var body map[string]any
+		if err := json.Unmarshal(fileData, &body); err != nil {
+			return fmt.Errorf("invalid JSON: %w", err)
+		}
+
+		resp, err := c.Post(ctx, "event-bulk-create-jobs", body)
+		if err != nil {
+			return err
+		}
+		fmt.Fprintln(os.Stderr, "Bulk event creation job submitted.")
+		return printData("events.bulk-create", client.FlattenResponse(resp, rawFlag))
+	},
+}
+
 func init() {
 	eventsListCmd.Flags().String("metric-id", "", "Filter by metric ID")
 	eventsListCmd.Flags().String("profile-id", "", "Filter by profile ID")
@@ -147,6 +181,8 @@ func init() {
 	eventsCreateCmd.Flags().String("profile-email", "", "Profile email (required)")
 	eventsCreateCmd.Flags().String("properties", "", "Event properties as JSON string")
 
-	eventsCmd.AddCommand(eventsListCmd, eventsGetCmd, eventsCreateCmd)
+	eventsBulkCreateCmd.Flags().String("payload", "", "Path to JSON file with bulk event data")
+
+	eventsCmd.AddCommand(eventsListCmd, eventsGetCmd, eventsCreateCmd, eventsBulkCreateCmd)
 	rootCmd.AddCommand(eventsCmd)
 }
