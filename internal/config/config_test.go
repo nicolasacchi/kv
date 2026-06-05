@@ -28,6 +28,9 @@ func TestLoadAPIKey_EnvVar(t *testing.T) {
 }
 
 func TestLoadAPIKey_KVEnvVar(t *testing.T) {
+	// KLAVIYO_API_KEY outranks KV_API_KEY, so clear any ambient one (a real key
+	// in the dev shell) — otherwise this test is non-hermetic.
+	t.Setenv("KLAVIYO_API_KEY", "")
 	t.Setenv("KV_API_KEY", "kv-env-key")
 	key, err := LoadAPIKey("", "")
 	if err != nil {
@@ -84,6 +87,10 @@ func TestAddAndRemoveProject(t *testing.T) {
 	// Use temp dir as home
 	tmpDir := t.TempDir()
 	t.Setenv("HOME", tmpDir)
+	// Clear ambient creds so LoadAPIKey("","test") resolves from the config
+	// file we write here, not a real key in the dev shell.
+	t.Setenv("KLAVIYO_API_KEY", "")
+	t.Setenv("KV_API_KEY", "")
 
 	// Add a project
 	err := AddProject("test", "pk_test123", "2024-10-15")
