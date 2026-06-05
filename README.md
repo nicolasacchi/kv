@@ -100,9 +100,13 @@ kv flows get QQeuKd --jq "name"
 |------|---------|
 | 0 | Success |
 | 1 | API error (4xx/5xx) |
-| 2 | CLI usage error |
-| 3 | Auth error (401/403) |
+| 2 | Auth error (401/403) |
+| 3 | Validation (400) |
+| 4 | Not found (404) |
+| 5 | Rate limited (429) |
 | 6 | Write refused — confirmation required (`write_locked`); re-run with `--yes` |
+
+Fleet-canonical table (`clicore/cierrors.ExitCodeFor`). **Changed:** auth was `3`, now `2`; not-found was folded into `1`, now `4`; CLI usage errors surface via cobra (exit 1).
 
 **Write-safety gate.** Every destructive verb — resource deletes (lists, segments,
 flows, templates, campaigns, coupons, catalog, tags, webhooks), `profiles suppress`,
