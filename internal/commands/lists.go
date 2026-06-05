@@ -135,6 +135,9 @@ var listsDeleteCmd = &cobra.Command{
 			return err
 		}
 
+		if handled, err := gate(cmd, fmt.Sprintf("delete list %s", args[0])); handled {
+			return err
+		}
 		err = c.Delete(ctx, "lists/"+args[0])
 		if err != nil {
 			return err
@@ -221,6 +224,9 @@ var listsRemoveMemberCmd = &cobra.Command{
 		}
 
 		path := fmt.Sprintf("lists/%s/relationships/profiles", args[0])
+		if handled, err := gate(cmd, fmt.Sprintf("remove profile %s from list %s", profileID, args[0])); handled {
+			return err
+		}
 		err = c.Delete(ctx, path)
 		if err != nil {
 			return err

@@ -182,6 +182,9 @@ var tagsDeleteCmd = &cobra.Command{
 			return err
 		}
 
+		if handled, err := gate(cmd, fmt.Sprintf("delete tag %s", args[0])); handled {
+			return err
+		}
 		err = c.Delete(ctx, "tags/"+args[0])
 		if err != nil {
 			return err
@@ -209,6 +212,9 @@ var tagsRemoveCmd = &cobra.Command{
 		}
 
 		path := fmt.Sprintf("tags/%s/relationships/%ss", args[0], resourceType)
+		if handled, err := gate(cmd, fmt.Sprintf("remove tag %s from %s", args[0], resourceType)); handled {
+			return err
+		}
 		err = c.Delete(ctx, path)
 		if err != nil {
 			return err

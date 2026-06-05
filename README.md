@@ -71,6 +71,8 @@ revision = "2025-01-15"
 | `--raw` | false | Output raw JSON:API (no flattening) |
 | `--verbose` | false | Request details to stderr |
 | `--quiet` | false | Suppress non-error output |
+| `--yes` / `--confirm` | false | Confirm destructive operations (deletes, suppress, merge, send, GDPR deletion) |
+| `--dry-run` | false | Print the intended mutation and exit without sending |
 | `--output-dir` | `.` | Directory for file exports |
 
 ## Output
@@ -100,6 +102,14 @@ kv flows get QQeuKd --jq "name"
 | 1 | API error (4xx/5xx) |
 | 2 | CLI usage error |
 | 3 | Auth error (401/403) |
+| 6 | Write refused — confirmation required (`write_locked`); re-run with `--yes` |
+
+**Write-safety gate.** Every destructive verb — resource deletes (lists, segments,
+flows, templates, campaigns, coupons, catalog, tags, webhooks), `profiles suppress`,
+`profiles merge`, `campaigns send`, and the GDPR `privacy request-deletion` — refuses
+unless `--yes`/`--confirm` is passed, exiting code `6` (`write_locked`). `--dry-run`
+previews the action and sends nothing. Automation must pass `--yes` explicitly so
+destructive intent is recorded on the command line.
 
 ### Error Output
 

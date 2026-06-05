@@ -115,6 +115,9 @@ var flowsDeleteCmd = &cobra.Command{
 			return err
 		}
 
+		if handled, err := gate(cmd, fmt.Sprintf("delete flow %s", args[0])); handled {
+			return err
+		}
 		err = c.Delete(ctx, "flows/"+args[0])
 		if err != nil {
 			return err

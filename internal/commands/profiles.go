@@ -202,6 +202,9 @@ var profilesSuppressCmd = &cobra.Command{
 			},
 		}
 
+		if handled, err := gate(cmd, fmt.Sprintf("suppress profile %s", args[0])); handled {
+			return err
+		}
 		resp, err := c.Post(ctx, "profile-suppression-bulk-create-jobs", body)
 		if err != nil {
 			return err
@@ -244,6 +247,9 @@ var profilesMergeCmd = &cobra.Command{
 			},
 		}
 
+		if handled, err := gate(cmd, fmt.Sprintf("merge profile %s into %s (cannot be undone)", source, destination)); handled {
+			return err
+		}
 		resp, err := c.Post(ctx, "profile-merge", body)
 		if err != nil {
 			return err

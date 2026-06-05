@@ -230,6 +230,9 @@ var templatesDeleteCmd = &cobra.Command{
 			return err
 		}
 
+		if handled, err := gate(cmd, fmt.Sprintf("delete template %s", args[0])); handled {
+			return err
+		}
 		err = c.Delete(ctx, "templates/"+args[0])
 		if err != nil {
 			return err

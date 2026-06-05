@@ -229,6 +229,9 @@ var campaignsSendCmd = &cobra.Command{
 			"campaign": jsonapiRelationship("campaign", args[0]),
 		}
 
+		if handled, err := gate(cmd, fmt.Sprintf("send campaign %s (emails real recipients)", args[0])); handled {
+			return err
+		}
 		resp, err := c.Post(ctx, "campaign-send-jobs", body)
 		if err != nil {
 			return err
@@ -253,6 +256,9 @@ var campaignsDeleteCmd = &cobra.Command{
 			return err
 		}
 
+		if handled, err := gate(cmd, fmt.Sprintf("delete campaign %s", args[0])); handled {
+			return err
+		}
 		err = c.Delete(ctx, "campaigns/"+args[0])
 		if err != nil {
 			return err
