@@ -157,6 +157,9 @@ var webhooksDeleteCmd = &cobra.Command{
 			return err
 		}
 
+		if handled, err := gate(cmd, fmt.Sprintf("delete webhook %s", args[0])); handled {
+			return err
+		}
 		err = c.Delete(ctx, "webhooks/"+args[0])
 		if err != nil {
 			return err

@@ -58,6 +58,9 @@ var privacyRequestDeletionCmd = &cobra.Command{
 			},
 		}
 
+		if handled, err := gate(cmd, "submit a GDPR deletion request for the targeted profile"); handled {
+			return err
+		}
 		resp, err := c.Post(ctx, "data-privacy-deletion-jobs", body)
 		if err != nil {
 			return err

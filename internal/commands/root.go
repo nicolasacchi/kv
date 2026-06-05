@@ -8,15 +8,15 @@ import (
 )
 
 var (
-	version       = "dev"
-	apiKeyFlag    string
-	projectFlag   string
-	revisionFlag  string
-	jsonFlag      bool
-	jqFlag        string
-	rawFlag       bool
-	verboseFlag   bool
-	quietFlag     bool
+	version        = "dev"
+	apiKeyFlag     string
+	projectFlag    string
+	revisionFlag   string
+	jsonFlag       bool
+	jqFlag         string
+	rawFlag        bool
+	verboseFlag    bool
+	quietFlag      bool
 	maxResultsFlag int
 	noPaginateFlag bool
 	outputDirFlag  string

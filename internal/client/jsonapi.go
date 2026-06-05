@@ -6,11 +6,11 @@ import (
 
 // Resource represents a JSON:API resource object.
 type Resource struct {
-	Type          string                       `json:"type"`
-	ID            string                       `json:"id"`
-	Attributes    map[string]json.RawMessage   `json:"attributes,omitempty"`
-	Relationships map[string]json.RawMessage   `json:"relationships,omitempty"`
-	Links         map[string]json.RawMessage   `json:"links,omitempty"`
+	Type          string                     `json:"type"`
+	ID            string                     `json:"id"`
+	Attributes    map[string]json.RawMessage `json:"attributes,omitempty"`
+	Relationships map[string]json.RawMessage `json:"relationships,omitempty"`
+	Links         map[string]json.RawMessage `json:"links,omitempty"`
 }
 
 // FlattenResponse takes a JSON:API response and flattens data objects.

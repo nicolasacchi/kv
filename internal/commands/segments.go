@@ -156,6 +156,9 @@ var segmentsDeleteCmd = &cobra.Command{
 			return err
 		}
 
+		if handled, err := gate(cmd, fmt.Sprintf("delete segment %s", args[0])); handled {
+			return err
+		}
 		err = c.Delete(ctx, "segments/"+args[0])
 		if err != nil {
 			return err

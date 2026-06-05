@@ -165,6 +165,9 @@ var catalogItemsDeleteCmd = &cobra.Command{
 			return err
 		}
 
+		if handled, err := gate(cmd, fmt.Sprintf("delete catalog item %s", args[0])); handled {
+			return err
+		}
 		err = c.Delete(ctx, "catalog-items/"+args[0])
 		if err != nil {
 			return err
@@ -315,6 +318,9 @@ var catalogVariantsDeleteCmd = &cobra.Command{
 			return err
 		}
 
+		if handled, err := gate(cmd, fmt.Sprintf("delete catalog variant %s", args[0])); handled {
+			return err
+		}
 		err = c.Delete(ctx, "catalog-variants/"+args[0])
 		if err != nil {
 			return err

@@ -146,6 +146,9 @@ var couponsDeleteCmd = &cobra.Command{
 			return err
 		}
 
+		if handled, err := gate(cmd, fmt.Sprintf("delete coupon %s", args[0])); handled {
+			return err
+		}
 		err = c.Delete(ctx, "coupons/"+args[0])
 		if err != nil {
 			return err
@@ -296,6 +299,9 @@ var couponsCodesDeleteCmd = &cobra.Command{
 			return err
 		}
 
+		if handled, err := gate(cmd, fmt.Sprintf("delete coupon code %s", args[0])); handled {
+			return err
+		}
 		err = c.Delete(ctx, "coupon-codes/"+args[0])
 		if err != nil {
 			return err
