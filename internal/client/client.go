@@ -15,7 +15,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/nicolasacchi/kv/internal/redact"
+	"github.com/nicolasacchi/clicore/redact"
 )
 
 const (
