@@ -117,8 +117,8 @@ func TestGet_401(t *testing.T) {
 	if apiErr.StatusCode != 401 {
 		t.Errorf("expected status 401, got %d", apiErr.StatusCode)
 	}
-	if apiErr.ExitCode() != 3 {
-		t.Errorf("expected exit code 3, got %d", apiErr.ExitCode())
+	if apiErr.ExitCode() != 2 {
+		t.Errorf("expected exit code 2 (canonical auth), got %d", apiErr.ExitCode())
 	}
 }
 
