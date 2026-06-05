@@ -1,6 +1,7 @@
 package commands
 
 import (
+	cliout "github.com/nicolasacchi/clicore/output"
 	"github.com/nicolasacchi/kv/internal/client"
 	"github.com/nicolasacchi/kv/internal/config"
 	"github.com/nicolasacchi/kv/internal/output"
@@ -60,6 +61,10 @@ func isJSONMode() bool {
 }
 
 func printData(command string, data []byte) error {
+	// Agent-mode row cap: --max-results defaults to 0 (unlimited), so under
+	// CLAUDECODE an unbounded list caps to AgentRowCap; an explicit --max-results
+	// always wins. Shape preserved (stays an array).
+	data = cliout.CapAgentArray(data, maxResultsFlag)
 	return output.PrintData(command, data, isJSONMode(), jqFlag, rawFlag)
 }
 
