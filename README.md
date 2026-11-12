@@ -140,7 +140,7 @@ kv config current                                          # Show active project
 With the default revision 2026-10-15 (omnichannel campaigns) `--status`/`--channel` are not filterable and `create` sends no channel; pass `--revision 2025-10-15` to get the legacy filters (channel defaulting to `email`).
 
 ```bash
-kv campaigns list [--status draft|scheduled|sent] [--channel email|sms]
+kv campaigns list [--status Draft|Scheduled|Sent] [--channel email|sms]
 kv campaigns get <ID>
 kv campaigns create --name "My Campaign" [--channel email]
 kv campaigns put <file.json>              # Update from JSON file

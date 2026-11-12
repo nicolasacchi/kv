@@ -28,13 +28,24 @@ func campaignOmnichannel() bool {
 	return rev >= "2026-10-15"
 }
 
+// normalizeCampaignStatus title-cases a legacy campaign status ("sent" ->
+// "Sent"): the legacy filter is case-sensitive and rejects lowercase values
+// with a 400 ("'sent' is not a valid choice for 'status'").
+func normalizeCampaignStatus(s string) string {
+	words := strings.Fields(strings.ToLower(s))
+	for i, w := range words {
+		words[i] = strings.ToUpper(w[:1]) + w[1:]
+	}
+	return strings.Join(words, " ")
+}
+
 var campaignsCmd = &cobra.Command{
 	Use:   "campaigns",
 	Short: "Manage campaigns",
 	Long: `List, get, create, and report on campaigns.
 
 Examples:
-  kv campaigns list --status sent
+  kv campaigns list --revision 2025-10-15 --status Sent
   kv campaigns get <ID>
   kv campaigns report <ID> --timeframe last_30_days`,
 }
@@ -65,7 +76,7 @@ var campaignsListCmd = &cobra.Command{
 			}
 			filter = buildFilter(filterEquals("messages.channel", channel))
 			if campaignStatusFilter != "" {
-				filter = buildFilter(filter, filterEquals("status", campaignStatusFilter))
+				filter = buildFilter(filter, filterEquals("status", normalizeCampaignStatus(campaignStatusFilter)))
 			}
 		}
 		if filter != "" {

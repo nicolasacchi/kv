@@ -12,3 +12,11 @@ func TestCampaignOmnichannel(t *testing.T) {
 		}
 	}
 }
+
+func TestNormalizeCampaignStatus(t *testing.T) {
+	for in, want := range map[string]string{"sent": "Sent", "Sent": "Sent", "SCHEDULED": "Scheduled", "cancelled - no recipients": "Cancelled - No Recipients", "": ""} {
+		if got := normalizeCampaignStatus(in); got != want {
+			t.Errorf("%q: got %q want %q", in, got, want)
+		}
+	}
+}
