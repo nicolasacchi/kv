@@ -42,7 +42,7 @@ Resolution order: `--api-key` flag > `KLAVIYO_API_KEY` env > `KV_API_KEY` env > 
 --project STRING      Named project from config
 --json                Force JSON output
 --jq STRING           gjson path filter (implies --json)
---revision STRING     API revision header (default: 2024-10-15)
+--revision STRING     API revision header (default: 2026-10-15)
 --max-results INT     Cap total results (default: 0 = unlimited)
 --no-paginate         First page only
 --raw                 Skip JSON:API flattening
@@ -54,7 +54,7 @@ Resolution order: `--api-key` flag > `KLAVIYO_API_KEY` env > `KV_API_KEY` env > 
 ## Gotchas
 
 - `--jq` uses **gjson** syntax, NOT jq. Array iteration: `#.field`. Object extraction: `#.{a:a,b:b}`
-- `campaigns list` defaults `--channel` to `email` (Klaviyo requires a channel filter)
+- Default revision 2026-10-15 = omnichannel campaigns: `campaigns list` takes no `--status`/`--channel` filter (not filterable); `create` sends no channel. With `--revision` < 2026-10-15 the legacy behaviour (channel filter defaulting to email) is kept
 - Report commands (`campaigns report`, `flows report`, `segments report`) **require** `--conversion-metric-id`
 - `metrics aggregates` **requires** `--start` and `--end`
 - `webhooks` endpoints require Klaviyo Advanced KDP plan (403 without it)

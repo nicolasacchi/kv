@@ -22,7 +22,7 @@ func TestGet_AuthHeader(t *testing.T) {
 	}))
 	defer srv.Close()
 
-	c := New("test-key", srv.URL, "2024-10-15", false)
+	c := New("test-key", srv.URL, "2026-10-15", false)
 	_, err := c.Get(context.Background(), "campaigns", nil)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
@@ -32,15 +32,15 @@ func TestGet_AuthHeader(t *testing.T) {
 func TestGet_RevisionHeader(t *testing.T) {
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		rev := r.Header.Get("Revision")
-		if rev != "2024-10-15" {
-			t.Errorf("expected Revision: 2024-10-15, got %q", rev)
+		if rev != "2026-10-15" {
+			t.Errorf("expected Revision: 2026-10-15, got %q", rev)
 		}
 		w.Header().Set("Content-Type", "application/vnd.api+json")
 		json.NewEncoder(w).Encode(map[string]any{"data": []any{}})
 	}))
 	defer srv.Close()
 
-	c := New("test-key", srv.URL, "2024-10-15", false)
+	c := New("test-key", srv.URL, "2026-10-15", false)
 	_, err := c.Get(context.Background(), "campaigns", nil)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
@@ -57,7 +57,7 @@ func TestGet_AcceptHeader(t *testing.T) {
 	}))
 	defer srv.Close()
 
-	c := New("test-key", srv.URL, "2024-10-15", false)
+	c := New("test-key", srv.URL, "2026-10-15", false)
 	_, err := c.Get(context.Background(), "campaigns", nil)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
@@ -75,7 +75,7 @@ func TestGet_404(t *testing.T) {
 	}))
 	defer srv.Close()
 
-	c := New("test-key", srv.URL, "2024-10-15", false)
+	c := New("test-key", srv.URL, "2026-10-15", false)
 	_, err := c.Get(context.Background(), "campaigns/nonexistent", nil)
 	if err == nil {
 		t.Fatal("expected error, got nil")
@@ -104,7 +104,7 @@ func TestGet_401(t *testing.T) {
 	}))
 	defer srv.Close()
 
-	c := New("bad-key", srv.URL, "2024-10-15", false)
+	c := New("bad-key", srv.URL, "2026-10-15", false)
 	_, err := c.Get(context.Background(), "campaigns", nil)
 	if err == nil {
 		t.Fatal("expected error, got nil")
@@ -137,7 +137,7 @@ func TestGet_429Retry(t *testing.T) {
 	}))
 	defer srv.Close()
 
-	c := New("test-key", srv.URL, "2024-10-15", false)
+	c := New("test-key", srv.URL, "2026-10-15", false)
 	c.maxRetries = 3
 	resp, err := c.Get(context.Background(), "campaigns/abc", nil)
 	if err != nil {
@@ -170,7 +170,7 @@ func TestGetAll_Pagination(t *testing.T) {
 	defer srv.Close()
 	srvURL = srv.URL
 
-	c := New("test-key", srv.URL, "2024-10-15", false)
+	c := New("test-key", srv.URL, "2026-10-15", false)
 	data, err := c.GetAll(context.Background(), "campaigns", nil, 0)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
@@ -201,7 +201,7 @@ func TestGetAll_MaxResults(t *testing.T) {
 	defer srv.Close()
 	srvURL = srv.URL
 
-	c := New("test-key", srv.URL, "2024-10-15", false)
+	c := New("test-key", srv.URL, "2026-10-15", false)
 	data, err := c.GetAll(context.Background(), "campaigns", nil, 2)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
@@ -223,7 +223,7 @@ func TestGet_ContextCancellation(t *testing.T) {
 	}))
 	defer srv.Close()
 
-	c := New("test-key", srv.URL, "2024-10-15", false)
+	c := New("test-key", srv.URL, "2026-10-15", false)
 	ctx, cancel := context.WithCancel(context.Background())
 	cancel() // Cancel immediately
 
@@ -248,7 +248,7 @@ func TestPost_ContentType(t *testing.T) {
 	}))
 	defer srv.Close()
 
-	c := New("test-key", srv.URL, "2024-10-15", false)
+	c := New("test-key", srv.URL, "2026-10-15", false)
 	_, err := c.Post(context.Background(), "campaign-values-reports", map[string]any{"data": map[string]any{}})
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
@@ -256,7 +256,7 @@ func TestPost_ContentType(t *testing.T) {
 }
 
 func TestBuildURL(t *testing.T) {
-	c := New("key", "https://a.klaviyo.com/api", "2024-10-15", false)
+	c := New("key", "https://a.klaviyo.com/api", "2026-10-15", false)
 
 	// Relative path
 	u := c.buildURL("campaigns", nil)
@@ -306,7 +306,7 @@ func TestDeleteNoContent(t *testing.T) {
 	}))
 	defer srv.Close()
 
-	c := New("test-key", srv.URL, "2024-10-15", false)
+	c := New("test-key", srv.URL, "2026-10-15", false)
 	err := c.Delete(context.Background(), "webhooks/123")
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)

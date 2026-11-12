@@ -54,7 +54,7 @@ api_key = "pk_abc123"
 
 [projects.staging]
 api_key = "pk_xyz789"
-revision = "2025-01-15"
+revision = "2026-10-15"
 ```
 
 ## Global Flags
@@ -65,7 +65,7 @@ revision = "2025-01-15"
 | `--project` | — | Named project from config |
 | `--json` | false | Force JSON output (auto-enabled when piped) |
 | `--jq` | — | gjson path filter (implies `--json`) |
-| `--revision` | `2024-10-15` | API revision header |
+| `--revision` | `2026-10-15` | API revision header |
 | `--max-results` | 0 | Cap results (0 = unlimited) |
 | `--no-paginate` | false | First page only |
 | `--raw` | false | Output raw JSON:API (no flattening) |
@@ -137,7 +137,7 @@ kv config current                                          # Show active project
 
 ### campaigns
 
-Campaigns list defaults to `--channel email` (required by the Klaviyo API).
+With the default revision 2026-10-15 (omnichannel campaigns) `--status`/`--channel` are not filterable and `create` sends no channel; pass `--revision 2025-10-15` to get the legacy filters (channel defaulting to `email`).
 
 ```bash
 kv campaigns list [--status draft|scheduled|sent] [--channel email|sms]

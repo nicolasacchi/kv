@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/nicolasacchi/kv/internal/client"
+	"github.com/nicolasacchi/kv/internal/config"
 	"github.com/spf13/cobra"
 )
 
@@ -16,6 +17,16 @@ var (
 	campaignStatusFilter  string
 	campaignChannelFilter string
 )
+
+// campaignOmnichannel reports whether the effective revision uses the
+// omnichannel campaign model (>= 2026-10-15). ISO dates compare lexically.
+func campaignOmnichannel() bool {
+	rev := config.LoadRevision(revisionFlag, projectFlag)
+	if rev == "" {
+		rev = client.DefaultRevision
+	}
+	return rev >= "2026-10-15"
+}
 
 var campaignsCmd = &cobra.Command{
 	Use:   "campaigns",
@@ -39,15 +50,23 @@ var campaignsListCmd = &cobra.Command{
 		}
 
 		params := url.Values{}
-		channel := campaignChannelFilter
-		if channel == "" {
-			channel = "email" // Klaviyo requires a channel filter
-		}
-		filter := buildFilter(
-			filterEquals("messages.channel", channel),
-		)
-		if campaignStatusFilter != "" {
-			filter = buildFilter(filter, filterEquals("status", campaignStatusFilter))
+		var filter string
+		if campaignOmnichannel() {
+			// Omnichannel model (2026-10-15): only archived/builder/created_at/
+			// id/name/updated_at are filterable; status and channel are per
+			// message/audience, so the legacy filters cannot be applied.
+			if campaignStatusFilter != "" || campaignChannelFilter != "" {
+				return fmt.Errorf("--status/--channel are not filterable on campaigns since revision 2026-10-15 (omnichannel); use --revision 2025-10-15 for the legacy filters")
+			}
+		} else {
+			channel := campaignChannelFilter
+			if channel == "" {
+				channel = "email" // legacy revisions require a channel filter
+			}
+			filter = buildFilter(filterEquals("messages.channel", channel))
+			if campaignStatusFilter != "" {
+				filter = buildFilter(filter, filterEquals("status", campaignStatusFilter))
+			}
 		}
 		if filter != "" {
 			params.Set("filter", filter)
@@ -107,7 +126,16 @@ var campaignsCreateCmd = &cobra.Command{
 		attrs := map[string]any{
 			"name": name,
 		}
-		if channel != "" {
+		// Omnichannel model (2026-10-15): a campaign has no channel; each
+		// message carries its own. Legacy revisions still need it.
+		if campaignOmnichannel() {
+			if cmd.Flags().Changed("channel") {
+				fmt.Fprintln(os.Stderr, "WARNING: --channel is ignored; campaigns are omnichannel since revision 2026-10-15 (channel is set per message).")
+			}
+		} else {
+			if channel == "" {
+				channel = "email"
+			}
 			attrs["channel"] = channel
 		}
 
@@ -327,11 +355,11 @@ Available statistics:
 }
 
 func init() {
-	campaignsListCmd.Flags().StringVar(&campaignStatusFilter, "status", "", "Filter by status (draft, scheduled, sent)")
-	campaignsListCmd.Flags().StringVar(&campaignChannelFilter, "channel", "", "Filter by channel (email, sms)")
+	campaignsListCmd.Flags().StringVar(&campaignStatusFilter, "status", "", "Filter by status (legacy revisions < 2026-10-15 only)")
+	campaignsListCmd.Flags().StringVar(&campaignChannelFilter, "channel", "", "Filter by channel (legacy revisions < 2026-10-15 only)")
 
 	campaignsCreateCmd.Flags().String("name", "", "Campaign name (required)")
-	campaignsCreateCmd.Flags().String("channel", "email", "Campaign channel (email, sms)")
+	campaignsCreateCmd.Flags().String("channel", "", "Deprecated, ignored since revision 2026-10-15")
 
 	campaignsReportCmd.Flags().StringVar(&campaignReportTimeframe, "timeframe", "", "Predefined timeframe (e.g. last_30_days)")
 	campaignsReportCmd.Flags().StringVar(&campaignReportStart, "start", "", "Custom range start (ISO 8601)")

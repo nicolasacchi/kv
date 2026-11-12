@@ -20,7 +20,7 @@ import (
 
 const (
 	DefaultBaseURL  = "https://a.klaviyo.com/api"
-	DefaultRevision = "2024-10-15"
+	DefaultRevision = "2026-10-15"
 	MaxRetries      = 3
 	MaxPages        = 50
 	Timeout         = 30 * time.Second
